@@ -4,22 +4,22 @@ namespace Platformer
 {
 	public class Character : MonoBehaviour
 	{
-		[SerializeField] private CharacterJump _characterJump;
-		[SerializeField] private CharacterMovement _characterMovement;
+		[SerializeField] private CharacterVerticalMovement _characterVerticalMovement;
+		[SerializeField] private CharacterHorizontalMovement _characterHorizontalMovement;
 
 		public void Jump()
 		{
-			_characterJump.Jump();
+			_characterVerticalMovement.Jump();
 		}
 		
 		public void Fall()
 		{
-			_characterJump.Fall();
+			_characterVerticalMovement.Fall();
 		}
 
 		public void Move(Vector3 direction)
 		{
-			_characterMovement.Move(direction);
+			_characterHorizontalMovement.Move(direction);
 		}
 	}
 }

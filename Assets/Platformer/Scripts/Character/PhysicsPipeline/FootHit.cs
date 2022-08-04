@@ -24,8 +24,97 @@ namespace Platformer
 			.Select(hit => hit.collider)
 			.Distinct();
 
-		public Vector3 CalculateAverageNormal()
+		public Vector3 NearestNormal(float distancePower = 1f)
 		{
+			if (!HasHit)
+				throw new Exception("There are no hits.");
+
+			float maxDistance = MaxDistance();
+			float minDistance = MinDistance();
+			
+			Vector3 normalSum = Vector3.zero;
+			float weightSum = 0f;
+			
+			foreach (var raycastHit in Hits.Where(raycastHit => raycastHit.collider is not null))
+			{
+				float distance = raycastHit.distance - RaysIndent;
+
+				float weight = 1f - Mathf.Pow((distance - minDistance) / (maxDistance - minDistance), distancePower);
+
+				normalSum += raycastHit.normal * weight;
+
+				weightSum += weight;
+			}
+
+			return Vector3.Normalize(normalSum / weightSum);
+		}
+		
+		public float MinDistance()
+		{
+			if (!HasHit)
+				throw new Exception("There are no hits.");
+			
+			float minDistance = Single.MaxValue;
+			
+			foreach (var raycastHit in Hits.Where(raycastHit => raycastHit.collider is not null))
+			{
+				float distance = raycastHit.distance - RaysIndent;
+
+				if (distance < minDistance)
+				{
+					minDistance = distance;
+				}
+			}
+			
+			return minDistance;
+		}
+		
+		public float MinDistanceWithAngleConstraint(float maxAngle)
+		{
+			if (!HasHit)
+				throw new Exception("There are no hits.");
+			
+			float minDistance = Single.MaxValue;
+			
+			foreach (var raycastHit in Hits.Where(raycastHit => raycastHit.collider is not null))
+			{
+				float distance = raycastHit.distance - RaysIndent;
+				float angle = Vector3.Angle(Vector3.up, raycastHit.normal);
+				
+				if (distance < minDistance && angle <= maxAngle)
+				{
+					minDistance = distance;
+				}
+			}
+			
+			return minDistance;
+		}
+		
+		public float MaxDistance()
+		{
+			if (!HasHit)
+				throw new Exception("There are no hits.");
+			
+			float maxDistance = Single.MinValue;
+			
+			foreach (var raycastHit in Hits.Where(raycastHit => raycastHit.collider is not null))
+			{
+				float distance = raycastHit.distance - RaysIndent;
+
+				if (distance > maxDistance)
+				{
+					maxDistance = distance;
+				}
+			}
+			
+			return maxDistance;
+		}
+		
+		public Vector3 AverageNormal()
+		{
+			if (!HasHit)
+				throw new Exception("There are no hits.");
+			
 			Vector3 normalSum = Vector3.zero;
 			float distanceSum = 0f;
 			int hits = 0;
@@ -43,8 +132,11 @@ namespace Platformer
 			return normalSum / hits;
 		}
 		
-		public float CalculateAverageDistance()
+		public float AverageDistance()
 		{
+			if (!HasHit)
+				throw new Exception("There are no hits.");
+			
 			Vector3 normalSum = Vector3.zero;
 			float distanceSum = 0f;
 			int hits = 0;
@@ -57,7 +149,7 @@ namespace Platformer
 			}
 			
 			if (hits == 0)
-				throw new Exception("There no ground hit.");
+				throw new Exception("There are no hits.");
 
 			return distanceSum / hits - RaysIndent;
 		}

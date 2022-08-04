@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Platformer
 {
@@ -10,6 +9,7 @@ namespace Platformer
 		[SerializeField] private float _rotationSpeed = 1f;
 
 		private Vector3 _rotationAxis;
+		private Quaternion _startRotation;
 		
 		private void Awake()
 		{
@@ -20,15 +20,14 @@ namespace Platformer
 		{
 			float rotationSpeedDegrees = _rotationSpeed * Mathf.Rad2Deg;
 			
-			_rigidbody.MoveRotation(_rigidbody.rotation * Quaternion.Euler(_rotationAxis * rotationSpeedDegrees * Time.deltaTime));
+			_rigidbody.MoveRotation(_rigidbody.rotation * Quaternion.AngleAxis(rotationSpeedDegrees * Time.deltaTime, _rotationDirection));
 		}
 
 		public void ForwardVelocityTo(IPhysics physics)
 		{
-			float angularVelocity = Vector3.Distance(Vector3.Scale(_rigidbody.position, Vector3.one - _rotationAxis),
-				Vector3.Scale(physics.Position, Vector3.one - _rotationAxis)) * _rotationSpeed;
-			Vector3 velocityTangent =
-				Vector3.Cross(Vector3.Normalize(_rigidbody.position - physics.Position), _rotationAxis);
+			float angularVelocity = Vector3.ProjectOnPlane(_rigidbody.position - physics.Position, _rotationAxis).magnitude 
+			                        * _rotationSpeed;
+			Vector3 velocityTangent = Vector3.Cross(Vector3.Normalize(_rigidbody.position - physics.Position), _rotationAxis);
 			physics.AddConstantForce(velocityTangent * angularVelocity);
 		}
 	}

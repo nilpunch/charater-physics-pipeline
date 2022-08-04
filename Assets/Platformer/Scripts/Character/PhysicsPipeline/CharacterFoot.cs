@@ -5,42 +5,40 @@ namespace Platformer
 	public class CharacterFoot : MonoBehaviour
 	{
 		[SerializeField] private FootRaycast _footRaycast;
-		[SerializeField, Range(0f, 90f)] private float _maxGroundAngle = 40f;
-		[SerializeField, Min(0f)] private float _maxGroundDistance = 0.1f;
+		[SerializeField, Range(0f, 90f)] private float _maxGroundJumpAngle = 40f;
+		[SerializeField, Min(0f)] private float _maxGroundDistance = 0.01f;
 		[SerializeField] private float _cayoteTime = 0.1f;
 
 		private float _elapsedAirTime;
 		
-		public bool IsOnGround { get; private set; }
-		public bool IsInAir => !IsOnGround;
+		public bool CanJumpOff { get; private set; }
 
 		public void UpdateGroundState()
 		{
-			bool onGround = false;
+			bool canJump = false;
 
 			if (_footRaycast.FootHit.HasHit)
 			{
-				float angleToGround = Vector3.Angle(Vector3.up, _footRaycast.FootHit.CalculateAverageNormal());
+				float angleToGround = Vector3.Angle(Vector3.up, _footRaycast.FootHit.AverageNormal());
 				
-				// Ground must have less then specified angle to be threaten like a ground
-				bool hitGroundAtExceptedAngle = angleToGround < _maxGroundAngle;
-				bool hitGroundAtExceptedDistance = _footRaycast.FootHit.CalculateAverageDistance() < _maxGroundDistance;
-				onGround = hitGroundAtExceptedAngle && hitGroundAtExceptedDistance;
+				bool hitGroundAtExceptedAngle = angleToGround < _maxGroundJumpAngle;
+				bool hitGroundAtExceptedDistance = _footRaycast.FootHit.MinDistanceWithAngleConstraint(_maxGroundJumpAngle) < _maxGroundDistance;
+				canJump = hitGroundAtExceptedAngle && hitGroundAtExceptedDistance;
 			}
 			
-			if (onGround)
+			if (canJump)
 			{
-				IsOnGround = true;
+				CanJumpOff = true;
 				_elapsedAirTime = 0f;
 			}
 			else if (_elapsedAirTime < _cayoteTime)
 			{
 				_elapsedAirTime += Time.deltaTime;
-				IsOnGround = true;
+				CanJumpOff = true;
 			}
 			else
 			{
-				IsOnGround = false;
+				CanJumpOff = false;
 			}
 		}
 	}

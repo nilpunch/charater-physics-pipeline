@@ -10,7 +10,7 @@ namespace Platformer
 		
 		public override void Affect(IPhysics physics)
 		{
-			if (!_characterFoot.IsOnGround)
+			if (!_characterFoot.CanJumpOff)
 				return;
 
 			foreach (var collider in _footRaycast.FootHit.Colliders)

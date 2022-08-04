@@ -5,11 +5,13 @@ namespace Platformer
 {
 	public class CharacterPunch : CharacterPhysicsModule, IPunchable
 	{
+		[SerializeField, Range(0f, 1f)] private float _verticalMovementAffection = 0.25f;
+		
 		private Vector3 _accumulatedPunch;
 		
 		public override void Affect(IPhysics physics)
 		{
-			physics.AddForce(_accumulatedPunch);
+			physics.AddForce(Vector3.Scale(_accumulatedPunch, new Vector3(1f, _verticalMovementAffection, 1f)));
 			_accumulatedPunch = Vector3.zero;
 		}
 
