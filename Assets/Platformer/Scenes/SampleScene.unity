@@ -1113,7 +1113,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 30, y: 45, z: 0}
 --- !u!1 &556277060
 GameObject:
@@ -1626,7 +1626,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &777507669
 GameObject:
@@ -1896,7 +1896,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &921066915
 GameObject:
@@ -2641,7 +2641,7 @@ Transform:
   m_Children:
   - {fileID: 91047955}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1253538179
 GameObject:
@@ -2689,7 +2689,7 @@ Transform:
   - {fileID: 1059729955}
   - {fileID: 1817557517}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1278622562
 GameObject:
@@ -3449,7 +3449,8 @@ MonoBehaviour:
   _maxSlope: 60
   _noSlipAngle: 55
   _fullSlipAngle: 60
-  _maxGroundDistance: 0.1
+  _slipMultiplier: 2
+  _maxGroundDistance: 0.05
 --- !u!114 &1695735809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3462,7 +3463,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d4aed90a84549378f3c8c41e5f1550c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _characterFoot: {fileID: 1695735812}
   _footRaycast: {fileID: 275419886}
   _maxInheritanceAngle: 89
   _minInheritanceDistance: 0.1
@@ -3531,7 +3531,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 973beb706bf741498a0642459ee73c75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Gravity: {x: 0, y: -78, z: 0}
+  <Gravity>k__BackingField: {x: 0, y: -78, z: 0}
+  <WorldUp>k__BackingField: {x: 0, y: 1, z: 0}
 --- !u!1 &1752324046
 GameObject:
   m_ObjectHideFlags: 0
