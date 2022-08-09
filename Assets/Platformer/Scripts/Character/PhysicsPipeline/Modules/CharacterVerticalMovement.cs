@@ -6,12 +6,12 @@ namespace Platformer
 	{
 		[SerializeField] private CharacterFoot _characterFoot;
 		[SerializeField] private CharacterGravity _characterGravity;
-		[SerializeField] private float _jumpMinHeight = 2.5f;
+		[SerializeField] private float _jumpMinHeight = 2f;
 		[SerializeField] private float _jumpMaxHeight = 4.5f;
 		[SerializeField] private float _jumpGravityDevider = 1.3f;
 		[SerializeField] private float _earlyFallGravityMultiplier = 3.0f;
 		[SerializeField, Range(0, 2)] private int _airJumps = 0;
-		[SerializeField] private float _jumpBuffer = 0.4f;
+		[SerializeField] private float _jumpBuffer = 0.2f;
 		
 		private bool _inJump;
 		private bool _fallRequested;
@@ -36,7 +36,7 @@ namespace Platformer
 		public override void Affect(IPhysics physics)
 		{
 			bool isFallVelocityReached = physics.Velocity.y <= FallMinVelocity;
-			bool isFalling = physics.Velocity.y < 0f;
+			bool isFalling = physics.Velocity.y <= 0.001f;
 			
 			if (isFalling)
 			{
@@ -76,7 +76,6 @@ namespace Platformer
 			_fallRequested = false;
 			_falling = false;
 
-			Vector3 gravityFight = -_characterGravity.Gravity * Time.deltaTime;
 			physics.AddForce(new Vector3(0f, JumpStartVelocity - physics.Velocity.y, 0f));
 		}
 

@@ -10,9 +10,11 @@ namespace Platformer
 	{
 		public readonly IReadOnlyList<RaycastHit> Hits;
 		public readonly float RaysIndent;
+		public readonly float RaycastDistance;
 
-		public FootHit(IReadOnlyList<RaycastHit> readOnlyList, float raysIndent)
+		public FootHit(IReadOnlyList<RaycastHit> readOnlyList, float raysIndent, float raycastDistance)
 		{
+			RaycastDistance = raycastDistance;
 			Hits = readOnlyList;
 			RaysIndent = raysIndent;
 		}
@@ -23,6 +25,25 @@ namespace Platformer
 			.Where(hit => hit.collider is not null)
 			.Select(hit => hit.collider)
 			.Distinct();
+
+		public IEnumerable<Collider> CollidersWithAngleAndDistance(float maxAngle, float minDistance)
+		{
+			return AllCollidersWithAngle(maxAngle, minDistance).Distinct();
+		}
+
+		private IEnumerable<Collider> AllCollidersWithAngle(float maxAngle, float minDistance)
+		{
+			foreach (var raycastHit in Hits.Where(raycastHit => raycastHit.collider is not null))
+			{
+				float distance = raycastHit.distance - RaysIndent;
+				float angle = Vector3.Angle(Vector3.up, raycastHit.normal);
+				
+				if (distance <= minDistance && angle <= maxAngle)
+				{
+					yield return raycastHit.collider;
+				}
+			}
+		}
 
 		public Vector3 NearestNormal(float distancePower = 1f)
 		{

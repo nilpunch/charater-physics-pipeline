@@ -2,7 +2,7 @@
 
 namespace Platformer
 {
-	public class MovingPlatform : MonoBehaviour, IMovingPlatform
+	public class MovingPlatform : Platform, IMovingPlatform
 	{
 		[SerializeField] private Rigidbody _rigidbody;
 		[SerializeField] private Transform[] _waypoints;
@@ -16,7 +16,7 @@ namespace Platformer
 
 		private Vector3 _currentVelocity;
 		
-		public void ManualUpdate()
+		public override void ManualUpdate()
 		{
 			Vector3 waypointPosition = _waypoints[_currentWaypoint].position;
 			Vector3 lastPosition = _rigidbody.position;
@@ -59,7 +59,7 @@ namespace Platformer
 
 		public void ForwardVelocityTo(IPhysics physics)
 		{
-			physics.AddConstantForce(_currentVelocity);
+			physics.AddInheritedForce(_currentVelocity);
 		}
 	}
 }

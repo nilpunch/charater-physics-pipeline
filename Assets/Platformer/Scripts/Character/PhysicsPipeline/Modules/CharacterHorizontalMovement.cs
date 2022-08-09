@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Platformer
 {
@@ -6,50 +7,68 @@ namespace Platformer
 	{
 		[SerializeField] private FootRaycast _footRaycast;
 		[SerializeField] private CharacterGravity _characterGravity;
-		[SerializeField] private float _speed = 12f;
+		
+		[Header("Movement")]
+		[SerializeField] private float _maxSpeed = 14f;
 		[SerializeField] private float _acceleration = 80f;
 		[SerializeField] private float _deceleration = 200f;
 
-		[Header("Ground specs")] 
-		[SerializeField, Range(0f, 90f)] private float _tolerantGroundAngle = 45f;
-		[SerializeField, Range(0f, 90f)] private float _maxGroundAngle = 60f;
+		[Header("Slope movement")] 
+		[SerializeField, Range(0f, 90f)] private float _tolerantSlope = 45f;
+		[SerializeField, Range(0f, 90f)] private float _maxSlope = 60f;
+		
+		[Header("Gravity fight")]
+		[SerializeField, Range(0f, 90f)] private float _noSlipAngle = 45f;
+		[SerializeField, Range(0f, 90f)] private float _fullSlipAngle = 60f;
+		
+		[Header("Other")]
 		[SerializeField] private float _maxGroundDistance = 0.01f;
 
 		private Vector3 _moveDirection;
 		
 		public override void Affect(IPhysics physics)
 		{
-			Vector3 groundUp = _characterGravity.WorldUp;
-			
+			// Defying normal to ground
+			Vector3 groundNormal = _characterGravity.WorldUp;
 			if (_footRaycast.FootHit.HasHit)
 			{
 				float distanceToGround = _footRaycast.FootHit.MinDistance();
 
 				if (distanceToGround < _maxGroundDistance)
-					groundUp = _footRaycast.FootHit.NearestNormal();
+					groundNormal = _footRaycast.FootHit.NearestNormal();
 			}
-
-			Vector3 desiredVelocity = _speed * _moveDirection.magnitude * Vector3.ProjectOnPlane(_moveDirection, groundUp).normalized;
-
-			float angleToWorldUp = desiredVelocity.sqrMagnitude > 0.001f 
-				? Vector3.Angle(desiredVelocity, _characterGravity.WorldUp) 
-				: 90f;
-			float angleAgainstGround = 90f - angleToWorldUp;
-			float groundResistance = 1f - Mathf.Clamp01(Mathf.InverseLerp(_tolerantGroundAngle, _maxGroundAngle, angleAgainstGround));
-
-			Vector3 lastVelocity = Vector3.ProjectOnPlane(physics.Velocity, groundUp);
-
-			Vector3 velocityDifference = desiredVelocity - lastVelocity;
 			
-			float decelerationFactor = Mathf.Clamp01(-Vector3.Dot(lastVelocity, velocityDifference) / (_speed * _speed));
-			
+			Vector3 desiredVelocity = _maxSpeed * _moveDirection.magnitude * Vector3.ProjectOnPlane(_moveDirection, groundNormal).normalized;
+
+			Vector3 lastVelocity = Vector3.ProjectOnPlane(physics.Velocity, groundNormal);
+
+			// Choosing acceleration
+			float decelerationFactor = Mathf.Clamp01(-Vector3.Dot(lastVelocity, desiredVelocity - lastVelocity) / (_maxSpeed * _maxSpeed));
 			float acceleration = Mathf.Lerp(_acceleration, _deceleration, decelerationFactor);
+
+			// Movement against slope
+			Vector3 slopeResistance = Vector3.zero;
+			if (Vector3.Angle(_characterGravity.WorldUp, groundNormal) > 0.001f)
+			{
+				Vector3 slope = Vector3.ProjectOnPlane(_characterGravity.WorldUp, groundNormal).normalized;
+				Vector3 fullSlopeResistance = Vector3.Project(desiredVelocity, slope);
+
+				float resistanceToWorldUpAngle = fullSlopeResistance.sqrMagnitude > 0.001f
+					? Vector3.Angle(fullSlopeResistance, _characterGravity.WorldUp)
+					: 90f;
+				float fightAgainstSlope = Mathf.Clamp01(Mathf.InverseLerp(_tolerantSlope, _maxSlope, 90f - resistanceToWorldUpAngle));
+
+				slopeResistance = fullSlopeResistance * fightAgainstSlope;
+			}
 			
-			Vector3 velocity = Vector3.MoveTowards(lastVelocity, desiredVelocity * groundResistance, acceleration * Time.deltaTime);
+			Vector3 velocity = Vector3.MoveTowards(lastVelocity, desiredVelocity - slopeResistance, acceleration * Time.deltaTime);
 
-			Vector3 fightAgainstGravity = Vector3.ProjectOnPlane(-_characterGravity.Gravity * Time.deltaTime, groundUp);
-
-			Vector3 velocityCorrection = Vector3.ClampMagnitude(velocity - lastVelocity, _speed) + fightAgainstGravity;
+			// Fight against gravity, simulating slip
+			float groundUpToWorldUpAngle = Vector3.Angle(groundNormal, _characterGravity.WorldUp);
+			float gravityFighting = 1f - Mathf.Clamp01(Mathf.InverseLerp(_noSlipAngle, _fullSlipAngle, groundUpToWorldUpAngle));
+			Vector3 fightAgainstGravity = Vector3.ProjectOnPlane(-_characterGravity.Gravity * Time.deltaTime, groundNormal) * gravityFighting;
+			
+			Vector3 velocityCorrection = -lastVelocity + velocity + fightAgainstGravity;
 			
 			physics.AddForce(velocityCorrection);
 		}

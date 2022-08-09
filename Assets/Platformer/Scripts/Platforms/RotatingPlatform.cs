@@ -2,7 +2,7 @@
 
 namespace Platformer
 {
-	public class RotatingPlatform : MonoBehaviour, IMovingPlatform
+	public class RotatingPlatform : Platform, IMovingPlatform
 	{
 		[SerializeField] private Rigidbody _rigidbody;
 		[SerializeField] private Vector3 _rotationDirection = Vector3.up;
@@ -16,7 +16,7 @@ namespace Platformer
 			_rotationAxis = _rigidbody.rotation * _rotationDirection;
 		}
 
-		public void ManualUpdate()
+		public override void ManualUpdate()
 		{
 			float rotationSpeedDegrees = _rotationSpeed * Mathf.Rad2Deg;
 			
@@ -28,7 +28,7 @@ namespace Platformer
 			float angularVelocity = Vector3.ProjectOnPlane(_rigidbody.position - physics.Position, _rotationAxis).magnitude 
 			                        * _rotationSpeed;
 			Vector3 velocityTangent = Vector3.Cross(Vector3.Normalize(_rigidbody.position - physics.Position), _rotationAxis);
-			physics.AddConstantForce(velocityTangent * angularVelocity);
+			physics.AddInheritedForce(velocityTangent * angularVelocity);
 		}
 	}
 }

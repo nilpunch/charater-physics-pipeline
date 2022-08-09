@@ -47,7 +47,7 @@ namespace Platformer
 
 			RaycastCommand.ScheduleBatch(_raycastInput, _raycastResult, 1).Complete();
 
-			FootHit = new FootHit(_raycastResult.ToArray(), _raysIndent);
+			FootHit = new FootHit(_raycastResult.ToArray(), _raysIndent, _raysDistance);
 		}
 
 		private void OnDrawGizmosSelected()

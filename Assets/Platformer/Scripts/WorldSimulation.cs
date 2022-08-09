@@ -5,24 +5,17 @@ namespace Platformer
 	public class WorldSimulation : MonoBehaviour
 	{
 		private CharacterPhysicsPipeline[] _characterPhysicsPipelines;
-		private MovingPlatform[] _movingPlatforms;
-		private RotatingPlatform[] _rotatingPlatforms;
+		private Platform[] _platforms;
 		
 		private void Awake()
 		{
 			_characterPhysicsPipelines = FindObjectsOfType<CharacterPhysicsPipeline>();
-			_movingPlatforms = FindObjectsOfType<MovingPlatform>();
-			_rotatingPlatforms = FindObjectsOfType<RotatingPlatform>();
+			_platforms = FindObjectsOfType<Platform>();
 		}
 
 		private void FixedUpdate()
 		{
-			foreach (var platform in _movingPlatforms)
-			{
-				platform.ManualUpdate();
-			}
-			
-			foreach (var platform in _rotatingPlatforms)
+			foreach (var platform in _platforms)
 			{
 				platform.ManualUpdate();
 			}
